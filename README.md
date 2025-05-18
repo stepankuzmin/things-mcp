@@ -227,10 +227,66 @@ To use this MCP server with Claude Desktop:
    - Name: Things MCP
    - URL: http://localhost:8000/mcp
    - Click "Add Server"
-6. In your conversation with Claude, you can now:
-   - View your Things tasks: "Show me my incomplete tasks"
-   - Get information about specific projects: "Show me my project called XYZ"
-   - View tasks with specific tags: "List my tasks tagged with 'Work'"
+
+### Claude Desktop Configuration Example
+
+Here's how the configuration should look in Claude Desktop:
+
+```json
+{
+  "name": "Things MCP",
+  "url": "http://localhost:8000/mcp",
+  "headers": {},
+  "auth": {
+    "type": "none"
+  }
+}
+```
+
+### Example Claude Prompts and Responses
+
+In your conversation with Claude, you can use natural language to interact with your Things data:
+
+**Prompt Example 1:**
+"Show me my incomplete tasks"
+
+Claude will use the `things_list` tool with parameters:
+```json
+{
+  "tool": "things_list",
+  "input": {
+    "entity_type": "todo",
+    "include_completed": false,
+    "include_canceled": false
+  }
+}
+```
+
+**Prompt Example 2:**
+"Show me my project called Website Redesign"
+
+Claude will first get projects and then find the specific one:
+```json
+{
+  "tool": "things_list",
+  "input": {
+    "entity_type": "project"
+  }
+}
+```
+
+**Prompt Example 3:**
+"List all my tasks with the tag 'High Priority'"
+
+Claude will first get all tags and then find tasks with that tag:
+```json
+{
+  "tool": "things_list",
+  "input": {
+    "entity_type": "tag"
+  }
+}
+```
 
 Claude will use the MCP server to fetch data directly from your Things app without requiring you to manually copy information.
 
