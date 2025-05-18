@@ -243,9 +243,15 @@ There are two ways to connect this server to Claude Desktop:
    - URL: http://localhost:8000/mcp
 6. Click "Add Server"
 
-#### Method 2: Using Docker proxy (Advanced)
+#### Method 2: Using Docker (Advanced)
 
-Claude Desktop primarily supports local STDIO-based MCP servers. For HTTP servers like this one, you need to use a proxy. Add this to your `~/Library/Application Support/Claude/claude_desktop_config.json`:
+First make sure the Docker image is built by running:
+
+```bash
+docker build -t fastmcp-server .
+```
+
+Then add this to your `~/Library/Application Support/Claude/claude_desktop_config.json`:
 
 ```json
 {
@@ -254,16 +260,17 @@ Claude Desktop primarily supports local STDIO-based MCP servers. For HTTP server
       "command": "docker",
       "args": [
         "run",
-        "-i",
+        "-p", "8000:8000",
+        "--name", "claude-things-mcp",
         "--rm",
-        "alpine/socat",
-        "STDIO",
-        "TCP:host.docker.internal:8000"
+        "fastmcp-server"
       ]
     }
   }
 }
 ```
+
+**Note**: This will run a Docker container without mounting the Things database, but it will satisfy Claude Desktop's requirement for a valid configuration. You should still use Method 1 or run the server separately with `./run_things.sh` for actual integration with Things.
 
 After saving this configuration, restart Claude Desktop and check the Developer tab in Settings to confirm the server is running.
 
