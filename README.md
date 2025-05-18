@@ -339,6 +339,24 @@ For Docker deployment on macOS:
 - No hardcoded paths or identifiers are used
 - Set `THINGS_DB_PATH` environment variable to the location of the mounted database inside the container
 
+### Troubleshooting
+
+If you see a "Server disconnected" error in Claude Desktop:
+1. Make sure the Docker container is running (check with `docker ps`)
+2. Verify that port 8000 is accessible (try `curl http://localhost:8000`)
+3. Restart Claude Desktop after making configuration changes
+4. Check Docker logs with `docker logs claude-things-mcp`
+
+If you have issues with the Things database connection:
+- The server uses things.py version 0.0.15 (the API changed in newer versions)
+- If you get an error about `set_database_path`, you need to update src/main.py to use:
+  ```python
+  # New API (things.py >= 0.0.15)
+  things.database = things.Database(things_db_path)
+  # Instead of the old API:
+  # things.set_database_path(things_db_path)
+  ```
+
 For CI/CD environments:
 - Tests may fail if Things is not available
 - Consider mocking the things.py library for testing

@@ -8,7 +8,8 @@ import os
 # Check if a custom Things database path is set
 things_db_path = os.environ.get("THINGS_DB_PATH")
 if things_db_path:
-    things.set_database_path(things_db_path)
+    # Use the Database class to set the database path
+    things.database = things.Database(things_db_path)
 
 app = FastAPI()
 
