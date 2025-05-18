@@ -228,24 +228,44 @@ To use this MCP server with Claude Desktop:
    - URL: http://localhost:8000/mcp
    - Click "Add Server"
 
-### Claude Desktop Configuration Example
+### Claude Desktop Integration
 
-Here's how the configuration should look in the Claude Desktop `config.json` file under the `mcpServers` list:
+There are two ways to connect this server to Claude Desktop:
+
+#### Method 1: Using Claude Desktop Settings UI (Recommended)
+
+1. Start the server using `./run_things.sh`
+2. Open Claude Desktop
+3. Go to Settings > MCP Servers
+4. Click "Add Server"
+5. Enter the following details:
+   - Name: Things MCP
+   - URL: http://localhost:8000/mcp
+6. Click "Add Server"
+
+#### Method 2: Using Docker proxy (Advanced)
+
+Claude Desktop primarily supports local STDIO-based MCP servers. For HTTP servers like this one, you need to use a proxy. Add this to your `~/Library/Application Support/Claude/claude_desktop_config.json`:
 
 ```json
-"mcpServers": [
-  {
-    "id": "things-mcp",
-    "name": "Things MCP",
-    "url": "http://localhost:8000/mcp",
-    "tools": ["echo", "things_list", "things_get"]
+{
+  "mcpServers": {
+    "things_mcp": {
+      "command": "docker",
+      "args": [
+        "run",
+        "-i",
+        "--rm",
+        "alpine/socat",
+        "STDIO",
+        "TCP:host.docker.internal:8000"
+      ]
+    }
   }
-]
+}
 ```
 
-You can add this to your existing Claude Desktop configuration file, typically located at:
-- macOS: `~/Library/Application Support/Claude/config.json`
-- Windows: `%APPDATA%\Claude\config.json`
+After saving this configuration, restart Claude Desktop and check the Developer tab in Settings to confirm the server is running.
 
 ### Example Claude Prompts and Responses
 
