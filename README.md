@@ -1,6 +1,6 @@
 # Simple FastMCP Server with Things Integration
 
-A minimal FastMCP server with an echo tool and Things task manager integration.
+A minimal FastMCP server with an echo tool and Things task manager integration. This server can be used with Claude Desktop to access your Things tasks directly from Claude.
 
 ## Usage
 
@@ -214,6 +214,25 @@ Example response:
   }
 }
 ```
+
+## Using with Claude Desktop
+
+To use this MCP server with Claude Desktop:
+
+1. Start the server using the instructions above (preferably with `./run_things.sh`)
+2. Open Claude Desktop on your Mac
+3. Go to Settings > MCP Servers 
+4. Click "Add Server"
+5. Enter the following details:
+   - Name: Things MCP
+   - URL: http://localhost:8000/mcp
+   - Click "Add Server"
+6. In your conversation with Claude, you can now:
+   - View your Things tasks: "Show me my incomplete tasks"
+   - Get information about specific projects: "Show me my project called XYZ"
+   - View tasks with specific tags: "List my tasks tagged with 'Work'"
+
+Claude will use the MCP server to fetch data directly from your Things app without requiring you to manually copy information.
 
 ## Notes on Things Integration
 
