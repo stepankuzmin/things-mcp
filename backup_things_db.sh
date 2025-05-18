@@ -4,9 +4,6 @@ set -e
 # Define date format for backup file naming
 DATE_FORMAT=$(date +"%Y-%m-%d_%H-%M-%S")
 
-# Default Things database location on macOS
-THINGS_DB_PATH="$HOME/Library/Group Containers/JLMPQHK86H.com.culturedcode.ThingsMac/Things Database.thingsdatabase/main.sqlite"
-
 # Default backup directory
 BACKUP_DIR="$HOME/ThingsBackups"
 
@@ -26,12 +23,18 @@ while [[ "$#" -gt 0 ]]; do
     shift
 done
 
-# Check if the database exists
-if [ ! -f "$THINGS_DB_PATH" ]; then
-    echo "Error: Things database not found at $THINGS_DB_PATH"
+# Find the Things database dynamically
+echo "Locating Things database..."
+GROUP_CONTAINERS="$HOME/Library/Group Containers"
+THINGS_DB=$(find "$GROUP_CONTAINERS" -name "main.sqlite" -path "*ThingsMac/Things Database.thingsdatabase*" -type f 2>/dev/null | head -n 1)
+
+if [ -z "$THINGS_DB" ]; then
+    echo "Error: Things database not found."
     echo "Make sure Things is installed on your Mac."
     exit 1
 fi
+
+echo "Found Things database at: $THINGS_DB"
 
 # Create backup directory if it doesn't exist
 mkdir -p "$BACKUP_DIR"
@@ -41,7 +44,7 @@ BACKUP_FILE="$BACKUP_DIR/things_backup_$DATE_FORMAT.sqlite"
 
 # Copy the database (using sqlite3 to create a proper backup)
 echo "Creating backup of Things database..."
-sqlite3 "$THINGS_DB_PATH" ".backup '$BACKUP_FILE'"
+sqlite3 "$THINGS_DB" ".backup '$BACKUP_FILE'"
 
 # Check if backup was successful
 if [ -f "$BACKUP_FILE" ]; then

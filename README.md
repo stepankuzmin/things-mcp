@@ -17,7 +17,7 @@ chmod +x run_things.sh
 ```
 
 This script:
-1. Locates your Things database
+1. Automatically locates your Things database
 2. Builds the Docker image if needed
 3. Runs the container with the database mounted
 4. Exposes the server on port 8000
@@ -31,9 +31,9 @@ docker build -t fastmcp-server .
 # Run the container (without Things integration)
 docker run -p 8000:8000 fastmcp-server
 
-# Run with Things database (macOS)
+# Run with Things database (macOS) - get the path with the provided helper script
 docker run -p 8000:8000 \
-  -v "$HOME/Library/Group Containers/JLMPQHK86H.com.culturedcode.ThingsMac/Things Database.thingsdatabase/main.sqlite:/things.db:ro" \
+  -v "$(./get_things_db_path.sh):/things.db:ro" \
   -e THINGS_DB_PATH="/things.db" \
   fastmcp-server
 ```
@@ -48,14 +48,32 @@ uv pip install -r requirements.txt
 python src/main.py
 ```
 
-## Database Backup
+## Things Database Utilities
+
+### Finding the Database Path
+
+To get the path to your Things database:
+
+```bash
+# Make the script executable if needed
+chmod +x get_things_db_path.sh
+
+# Print the database path
+./get_things_db_path.sh
+```
+
+This can be used in other scripts or commands:
+
+```bash
+# Example: Open the database directly with sqlite3
+sqlite3 "$(./get_things_db_path.sh)"
+```
+
+### Database Backup
 
 To backup your Things database:
 
 ```bash
-# Make the script executable if needed
-chmod +x backup_things_db.sh
-
 # Create a backup in the default location (~/ThingsBackups)
 ./backup_things_db.sh
 
@@ -64,6 +82,7 @@ chmod +x backup_things_db.sh
 ```
 
 The script:
+- Dynamically locates your Things database
 - Creates timestamped SQLite backups
 - Maintains a history of recent backups
 - Automatically cleans up old backups (keeping 10 most recent)
@@ -201,7 +220,8 @@ Example response:
 This server integrates with the Things app on macOS using the [things.py](https://github.com/thingsapi/things.py) library. The library reads data from the Things database, so the Things app must be installed on the same machine where the server is running.
 
 For Docker deployment on macOS:
-- The `run_things.sh` script handles mounting the database automatically
+- All scripts now dynamically locate the Things database
+- No hardcoded paths or identifiers are used
 - Set `THINGS_DB_PATH` environment variable to the location of the mounted database inside the container
 
 For CI/CD environments:
