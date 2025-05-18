@@ -263,13 +263,14 @@ Add this to your `~/Library/Application Support/Claude/claude_desktop_config.jso
 {
   "mcpServers": {
     "things_mcp": {
+      "name": "Things MCP",
       "command": "docker",
       "args": [
         "run",
         "-i",
-        "-p", "8000:8000",
         "--name", "claude-things-mcp",
         "--rm",
+        "-p", "8000:8000",
         "-v", "/path/to/your/things/database:/things.db:ro",
         "-e", "THINGS_DB_PATH=/things.db",
         "things-mcp-server"
@@ -341,11 +342,21 @@ For Docker deployment on macOS:
 
 ### Troubleshooting
 
+If the Things MCP server doesn't appear in Claude Desktop's tools list:
+1. Make sure your configuration includes a `name` field in the "things_mcp" section
+2. Verify the Docker container is running properly (check with `docker ps`)
+3. Restart Claude Desktop to apply any configuration changes
+
+If the Docker container doesn't stop when closing Claude Desktop:
+1. Make sure you're using the `--name` parameter in your Docker configuration
+2. The container name must match between starts and stops
+3. If a container is stuck, you can manually remove it with `docker rm -f claude-things-mcp`
+
 If you see a "Server disconnected" error in Claude Desktop:
 1. Make sure the Docker container is running (check with `docker ps`)
 2. Verify that port 8000 is accessible (try `curl http://localhost:8000`)
-3. Restart Claude Desktop after making configuration changes
-4. Check Docker logs with `docker logs claude-things-mcp`
+3. Check Docker logs with `docker logs claude-things-mcp`
+4. Ensure there are no port conflicts (another service using port 8000)
 
 If you have issues with the Things database connection:
 - The server uses things.py version 0.0.15 (the API changed in newer versions)
