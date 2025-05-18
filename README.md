@@ -1,6 +1,6 @@
-# Simple FastMCP Server with Things Integration
+# FastMCP Server with Things Integration
 
-A minimal FastMCP server with an echo tool and Things task manager integration. This server can be used with Claude Desktop to access your Things tasks directly from Claude.
+A FastMCP-powered server with an echo tool and Things task manager integration. This server can be used with Claude Desktop to access your Things tasks directly from Claude. Built using the FastMCP 2.3.4 framework for simplified MCP development.
 
 ## Usage
 
@@ -115,7 +115,8 @@ PYTHONPATH=. pytest -xvs src/test_main.py
 ## API Endpoints
 
 - `GET /`: Health check endpoint
-- `POST /mcp`: MCP endpoint for tool execution
+- `POST /mcp`: MCP endpoint for tool execution (automatically provided by FastMCP)
+- `GET /docs`: Interactive API documentation (automatically provided by FastMCP)
 
 ## Available Tools
 
@@ -262,8 +263,7 @@ Add this to your `~/Library/Application Support/Claude/claude_desktop_config.jso
 ```json
 {
   "mcpServers": {
-    "things_mcp": {
-      "name": "Things MCP",
+    "Things": {
       "command": "docker",
       "args": [
         "run",
@@ -331,6 +331,16 @@ Claude will first get all tags and then find tasks with that tag:
 
 Claude will use the MCP server to fetch data directly from your Things app without requiring you to manually copy information.
 
+## FastMCP Integration
+
+This server uses [FastMCP](https://pypi.org/project/fastmcp/) version 2.3.4, a framework for quickly building MCP-compatible servers. FastMCP simplifies the process of creating tools and handling MCP requests, providing:
+
+- Simplified tool definition with decorators
+- Automatic tool schema generation
+- Built-in parameter validation
+- API documentation with Swagger UI
+- Consistent error handling
+
 ## Notes on Things Integration
 
 This server integrates with the Things app on macOS using the [things.py](https://github.com/thingsapi/things.py) library. The library reads data from the Things database, so the Things app must be installed on the same machine where the server is running.
@@ -343,7 +353,7 @@ For Docker deployment on macOS:
 ### Troubleshooting
 
 If the Things MCP server doesn't appear in Claude Desktop's tools list:
-1. Make sure your configuration includes a `name` field in the "things_mcp" section
+1. Make sure your MCP server key is a human-readable name (e.g., "Things" instead of "things_mcp")
 2. Verify the Docker container is running properly (check with `docker ps`)
 3. Restart Claude Desktop to apply any configuration changes
 
