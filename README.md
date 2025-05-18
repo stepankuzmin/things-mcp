@@ -48,6 +48,27 @@ uv pip install -r requirements.txt
 python src/main.py
 ```
 
+## Database Backup
+
+To backup your Things database:
+
+```bash
+# Make the script executable if needed
+chmod +x backup_things_db.sh
+
+# Create a backup in the default location (~/ThingsBackups)
+./backup_things_db.sh
+
+# Or specify a custom backup directory
+./backup_things_db.sh --dir /path/to/backup/dir
+```
+
+The script:
+- Creates timestamped SQLite backups
+- Maintains a history of recent backups
+- Automatically cleans up old backups (keeping 10 most recent)
+- Uses SQLite's native backup functionality for data integrity
+
 ## Testing
 
 You can run tests without having Python installed on your machine using Docker:
