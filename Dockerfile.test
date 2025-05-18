@@ -1,0 +1,21 @@
+FROM --platform=linux/amd64 python:3.11-slim
+
+WORKDIR /app
+
+# Install uv
+RUN pip install uv
+
+# Copy requirements first for better caching
+COPY requirements.txt requirements-dev.txt ./
+
+# Install all dependencies including test dependencies using --system flag
+RUN uv pip install --system -r requirements.txt -r requirements-dev.txt
+
+# Copy the source code
+COPY src/ src/
+
+# Set Python path to include the src directory
+ENV PYTHONPATH="/app:/app/src"
+
+# Run the tests
+CMD ["pytest", "-xvs", "src/test_main.py"]
