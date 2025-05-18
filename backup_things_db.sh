@@ -23,14 +23,13 @@ while [[ "$#" -gt 0 ]]; do
     shift
 done
 
-# Find the Things database dynamically
+# Find the Things database dynamically using the script
 echo "Locating Things database..."
-GROUP_CONTAINERS="$HOME/Library/Group Containers"
-THINGS_DB=$(find "$GROUP_CONTAINERS" -name "main.sqlite" -path "*ThingsMac/Things Database.thingsdatabase*" -type f 2>/dev/null | head -n 1)
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+THINGS_DB=$("$SCRIPT_DIR/get_things_db_path.sh")
 
-if [ -z "$THINGS_DB" ]; then
-    echo "Error: Things database not found."
-    echo "Make sure Things is installed on your Mac."
+if [ $? -ne 0 ]; then
+    echo "Error: Failed to locate Things database."
     exit 1
 fi
 

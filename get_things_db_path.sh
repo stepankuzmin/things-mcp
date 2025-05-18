@@ -3,7 +3,7 @@ set -e
 
 # Find the Things database dynamically
 GROUP_CONTAINERS="$HOME/Library/Group Containers"
-THINGS_DB=$(find "$GROUP_CONTAINERS" -name "main.sqlite" -path "*ThingsMac/Things Database.thingsdatabase*" -type f 2>/dev/null | head -n 1)
+THINGS_DB=$(find "$GROUP_CONTAINERS" -name "main.sqlite" -path "*ThingsMac/ThingsData*/Things Database.thingsdatabase*" -type f 2>/dev/null | head -n 1)
 
 if [ -z "$THINGS_DB" ]; then
     echo "Error: Things database not found" >&2
