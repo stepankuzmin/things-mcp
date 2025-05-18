@@ -230,18 +230,22 @@ To use this MCP server with Claude Desktop:
 
 ### Claude Desktop Configuration Example
 
-Here's how the configuration should look in Claude Desktop:
+Here's how the configuration should look in the Claude Desktop `config.json` file under the `mcpServers` list:
 
 ```json
-{
-  "name": "Things MCP",
-  "url": "http://localhost:8000/mcp",
-  "headers": {},
-  "auth": {
-    "type": "none"
+"mcpServers": [
+  {
+    "id": "things-mcp",
+    "name": "Things MCP",
+    "url": "http://localhost:8000/mcp",
+    "tools": ["echo", "things_list", "things_get"]
   }
-}
+]
 ```
+
+You can add this to your existing Claude Desktop configuration file, typically located at:
+- macOS: `~/Library/Application Support/Claude/config.json`
+- Windows: `%APPDATA%\Claude\config.json`
 
 ### Example Claude Prompts and Responses
 
