@@ -1,23 +1,16 @@
 from fastmcp import FastMCP
 from enum import Enum
-from typing import Dict, Any, List, Optional
-from pydantic import BaseModel, Field
+from typing import Dict, Any
 import things
 import os
 
 # Check if a custom Things database path is set
 things_db_path = os.environ.get("THINGS_DB_PATH")
 if things_db_path:
-    # Use the Database class to set the database path
     things.database = things.Database(things_db_path)
 
 # Initialize FastMCP
 app = FastMCP(title="Things MCP")
-
-# Echo Tool
-@app.tool(description="Echoes back the provided message")
-def echo(message: str) -> dict:
-    return {"echo": message}
 
 # Define Things Tools
 class ThingsEntityType(str, Enum):
@@ -56,11 +49,5 @@ def things_get(uuid: str) -> dict:
     
     return {"item": item}
 
-# Health check tool
-@app.tool(description="Health check")
-def health_check() -> dict:
-    return {"message": "Simple FastMCP Server"}
-
 if __name__ == "__main__":
-    # Run with stdio transport (default)
     app.run()
