@@ -243,15 +243,21 @@ There are two ways to connect this server to Claude Desktop:
    - URL: http://localhost:8000/mcp
 6. Click "Add Server"
 
-#### Method 2: Using Docker (Advanced)
+#### Method 2: Using Docker with Claude Desktop (Advanced)
 
-First make sure the Docker image is built by running:
+First build the Docker image:
 
 ```bash
-docker build -t fastmcp-server .
+docker build -t things-mcp-server .
 ```
 
-Then add this to your `~/Library/Application Support/Claude/claude_desktop_config.json`:
+Then get the path to your Things database:
+
+```bash
+./get_things_db_path.sh
+```
+
+Add this to your `~/Library/Application Support/Claude/claude_desktop_config.json`:
 
 ```json
 {
@@ -260,17 +266,20 @@ Then add this to your `~/Library/Application Support/Claude/claude_desktop_confi
       "command": "docker",
       "args": [
         "run",
+        "-i",
         "-p", "8000:8000",
         "--name", "claude-things-mcp",
         "--rm",
-        "fastmcp-server"
+        "-v", "/path/to/your/things/database:/things.db:ro",
+        "-e", "THINGS_DB_PATH=/things.db",
+        "things-mcp-server"
       ]
     }
   }
 }
 ```
 
-**Note**: This will run a Docker container without mounting the Things database, but it will satisfy Claude Desktop's requirement for a valid configuration. You should still use Method 1 or run the server separately with `./run_things.sh` for actual integration with Things.
+Replace `/path/to/your/things/database` with the actual path returned by the `get_things_db_path.sh` script. This will start the MCP server with access to your Things database when Claude Desktop launches.
 
 After saving this configuration, restart Claude Desktop and check the Developer tab in Settings to confirm the server is running.
 
