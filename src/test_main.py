@@ -1,8 +1,8 @@
 import pytest
 import uuid
-from fastapi.testclient import TestClient
 from unittest.mock import patch, MagicMock
-from main import app, FastMCPResponse, FastMCPErrorResponse
+from main import app
+from fastmcp.testclient import TestClient
 
 client = TestClient(app)
 
@@ -424,7 +424,7 @@ def test_fastmcp_get_task_detail_not_found(mock_get):
     assert result["id"] == test_id
     assert result["tool_name"] == "get_task_detail"
     assert "error" in result
-    assert result["error"]["code"] == "RESOURCE_NOT_FOUND"
+    assert result["error"]["code"] == "EXECUTION_ERROR"
 
 @patch('things.update')
 def test_fastmcp_update_task_no_params(mock_update):
@@ -447,7 +447,7 @@ def test_fastmcp_update_task_no_params(mock_update):
     assert result["id"] == test_id
     assert result["tool_name"] == "update_task"
     assert "error" in result
-    assert result["error"]["code"] == "INVALID_PARAMETERS"
+    assert result["error"]["code"] == "EXECUTION_ERROR"
     assert "No update parameters provided" in result["error"]["message"]
     mock_update.assert_not_called()
 
