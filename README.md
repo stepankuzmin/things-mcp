@@ -1,6 +1,6 @@
-# Simple FastMCP Server
+# Things FastMCP Server
 
-A minimal FastMCP server with tools for working with the Things 3 task manager.
+A FastMCP 2.0 server with tools for working with the Things 3 task manager.
 
 ## Usage
 
@@ -50,8 +50,98 @@ PYTHONPATH=. pytest -xvs src/test_main.py
 
 ## API Endpoints
 
+### Base Endpoints
+
 - `GET /`: Health check endpoint
-- `POST /mcp`: MCP endpoint for tool execution
+- `GET /fastmcp/v2/tools`: FastMCP 2.0 tool discovery endpoint
+- `POST /fastmcp/v2/execute`: FastMCP 2.0 tool execution endpoint
+- `POST /mcp`: Legacy MCP endpoint (for backward compatibility)
+
+## FastMCP 2.0 Interface
+
+This server implements the FastMCP 2.0 specification, which provides a standardized interface for executing tools:
+
+### Tool Discovery
+
+To discover available tools, make a GET request to `/fastmcp/v2/tools`:
+
+```
+GET /fastmcp/v2/tools
+```
+
+Response:
+```json
+{
+  "tools": [
+    {
+      "name": "echo",
+      "description": "Echoes back the provided message",
+      "version": "1.0.0",
+      "input_schema": {
+        "properties": {
+          "message": {
+            "description": "Message to echo back",
+            "type": "string"
+          }
+        },
+        "required": ["message"]
+      },
+      "output_schema": {
+        "properties": {
+          "echo": {
+            "type": "string"
+          }
+        },
+        "required": ["echo"]
+      }
+    },
+    // Other tools...
+  ]
+}
+```
+
+### Tool Execution
+
+To execute a tool, make a POST request to `/fastmcp/v2/execute` with the following structure:
+
+```
+POST /fastmcp/v2/execute
+```
+
+Request:
+```json
+{
+  "id": "request-id-1234",
+  "tool_name": "echo",
+  "tool_params": {
+    "message": "Hello, FastMCP 2.0!"
+  }
+}
+```
+
+Successful Response:
+```json
+{
+  "id": "request-id-1234",
+  "tool_name": "echo",
+  "response": {
+    "echo": "Hello, FastMCP 2.0!"
+  }
+}
+```
+
+Error Response:
+```json
+{
+  "id": "request-id-1234",
+  "tool_name": "unknown_tool",
+  "error": {
+    "code": "TOOL_NOT_FOUND",
+    "message": "Tool 'unknown_tool' not found",
+    "details": null
+  }
+}
+```
 
 ## Available Tools
 
@@ -62,8 +152,9 @@ Echoes back the provided message.
 Example request:
 ```json
 {
-  "tool": "echo",
-  "input": {
+  "id": "request-id-1234",
+  "tool_name": "echo",
+  "tool_params": {
     "message": "Hello, world!"
   }
 }
@@ -72,7 +163,9 @@ Example request:
 Example response:
 ```json
 {
-  "output": {
+  "id": "request-id-1234",
+  "tool_name": "echo",
+  "response": {
     "echo": "Hello, world!"
   }
 }
@@ -89,8 +182,9 @@ Retrieve tasks with flexible filtering options.
 Example request:
 ```json
 {
-  "tool": "get_tasks",
-  "input": {
+  "id": "request-id-1234",
+  "tool_name": "get_tasks",
+  "tool_params": {
     "status": "upcoming",
     "tag": "work",
     "limit": 10
@@ -101,7 +195,9 @@ Example request:
 Example response:
 ```json
 {
-  "output": {
+  "id": "request-id-1234",
+  "tool_name": "get_tasks",
+  "response": {
     "tasks": [
       {
         "uuid": "task-uuid-1",
@@ -109,7 +205,7 @@ Example response:
         "status": "upcoming",
         "tags": ["work"]
       },
-      ...
+      // Other tasks...
     ]
   }
 }
@@ -131,8 +227,9 @@ Get detailed information about a specific task.
 Example request:
 ```json
 {
-  "tool": "get_task_detail",
-  "input": {
+  "id": "request-id-1234",
+  "tool_name": "get_task_detail",
+  "tool_params": {
     "uuid": "task-uuid-1"
   }
 }
@@ -141,7 +238,9 @@ Example request:
 Example response:
 ```json
 {
-  "output": {
+  "id": "request-id-1234",
+  "tool_name": "get_task_detail",
+  "response": {
     "task": {
       "uuid": "task-uuid-1",
       "title": "Finish project report",
@@ -165,8 +264,9 @@ Retrieve projects with filtering options.
 Example request:
 ```json
 {
-  "tool": "get_projects",
-  "input": {
+  "id": "request-id-1234",
+  "tool_name": "get_projects",
+  "tool_params": {
     "status": "upcoming",
     "area": "Work"
   }
@@ -176,7 +276,9 @@ Example request:
 Example response:
 ```json
 {
-  "output": {
+  "id": "request-id-1234",
+  "tool_name": "get_projects",
+  "response": {
     "projects": [
       {
         "uuid": "project-uuid-1",
@@ -184,7 +286,7 @@ Example response:
         "status": "upcoming",
         "area": "Work"
       },
-      ...
+      // Other projects...
     ]
   }
 }
@@ -197,8 +299,9 @@ List organizational areas.
 Example request:
 ```json
 {
-  "tool": "get_areas",
-  "input": {
+  "id": "request-id-1234",
+  "tool_name": "get_areas",
+  "tool_params": {
     "search": "Work"
   }
 }
@@ -207,13 +310,15 @@ Example request:
 Example response:
 ```json
 {
-  "output": {
+  "id": "request-id-1234",
+  "tool_name": "get_areas",
+  "response": {
     "areas": [
       {
         "uuid": "area-uuid-1",
         "title": "Work"
       },
-      ...
+      // Other areas...
     ]
   }
 }
@@ -226,15 +331,18 @@ List all available tags.
 Example request:
 ```json
 {
-  "tool": "get_tags",
-  "input": {}
+  "id": "request-id-1234",
+  "tool_name": "get_tags",
+  "tool_params": {}
 }
 ```
 
 Example response:
 ```json
 {
-  "output": {
+  "id": "request-id-1234",
+  "tool_name": "get_tags",
+  "response": {
     "tags": [
       {
         "uuid": "tag-uuid-1",
@@ -244,7 +352,7 @@ Example response:
         "uuid": "tag-uuid-2",
         "title": "personal"
       },
-      ...
+      // Other tags...
     ]
   }
 }
@@ -257,8 +365,9 @@ Create a new task with optional metadata.
 Example request:
 ```json
 {
-  "tool": "create_task",
-  "input": {
+  "id": "request-id-1234",
+  "tool_name": "create_task",
+  "tool_params": {
     "title": "Write quarterly report",
     "notes": "Include metrics from Q3",
     "tags": ["work", "reports"],
@@ -277,7 +386,9 @@ Example request:
 Example response:
 ```json
 {
-  "output": {
+  "id": "request-id-1234",
+  "tool_name": "create_task",
+  "response": {
     "uuid": "new-task-uuid",
     "title": "Write quarterly report"
   }
@@ -291,8 +402,9 @@ Mark a task as completed.
 Example request:
 ```json
 {
-  "tool": "complete_task",
-  "input": {
+  "id": "request-id-1234",
+  "tool_name": "complete_task",
+  "tool_params": {
     "uuid": "task-uuid-1"
   }
 }
@@ -301,7 +413,9 @@ Example request:
 Example response:
 ```json
 {
-  "output": {
+  "id": "request-id-1234",
+  "tool_name": "complete_task",
+  "response": {
     "success": true,
     "uuid": "task-uuid-1"
   }
@@ -315,8 +429,9 @@ Mark a task as canceled.
 Example request:
 ```json
 {
-  "tool": "cancel_task",
-  "input": {
+  "id": "request-id-1234",
+  "tool_name": "cancel_task",
+  "tool_params": {
     "uuid": "task-uuid-1"
   }
 }
@@ -325,7 +440,9 @@ Example request:
 Example response:
 ```json
 {
-  "output": {
+  "id": "request-id-1234",
+  "tool_name": "cancel_task",
+  "response": {
     "success": true,
     "uuid": "task-uuid-1"
   }
@@ -339,8 +456,9 @@ Update an existing task's attributes.
 Example request:
 ```json
 {
-  "tool": "update_task",
-  "input": {
+  "id": "request-id-1234",
+  "tool_name": "update_task",
+  "tool_params": {
     "uuid": "task-uuid-1",
     "title": "Updated task title",
     "notes": "Updated notes content",
@@ -354,9 +472,15 @@ Example request:
 Example response:
 ```json
 {
-  "output": {
+  "id": "request-id-1234",
+  "tool_name": "update_task",
+  "response": {
     "success": true,
     "uuid": "task-uuid-1"
   }
 }
 ```
+
+## Legacy Support
+
+The server maintains backward compatibility with the previous MCP format through the `/mcp` endpoint. This allows existing clients to continue working while new clients can take advantage of the FastMCP 2.0 interface.
