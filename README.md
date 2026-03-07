@@ -5,7 +5,25 @@ A minimal FastMCP server that integrates with Things task manager on macOS. This
 ## Requirements
 
 - macOS with Things app installed
-- Docker
+- `uv`
+
+## Local Setup
+
+```bash
+# Install the pinned Python version with uv
+uv python install 3.11
+
+# Create the project environment in .venv using uv-managed Python
+uv sync --managed-python --locked
+```
+
+This repo does not use system site-packages. Run everything through `uv`.
+
+## Run Locally
+
+```bash
+uv run --managed-python python src/main.py
+```
 
 ## Usage with Claude Desktop
 
@@ -15,30 +33,55 @@ Add this to your `~/Library/Application Support/Claude/claude_desktop_config.jso
 {
   "mcpServers": {
     "Things": {
-      "command": "docker",
+      "command": "uv",
       "args": [
         "run",
-        "-i",
-        "--name", "claude-things-mcp",
-        "--rm",
-        "-v", "/path/to/your/things/database:/things.db:ro",
-        "-e", "THINGS_DB_PATH=/things.db",
-        "fastmcp-server"
+        "--directory", "/path/to/things-mcp",
+        "--managed-python",
+        "python",
+        "src/main.py"
       ]
     }
   }
 }
 ```
 
-Replace `/path/to/your/things/database` with the path to your Things database, typically found at:
-`~/Library/Group Containers/JLMPQHK86H.com.culturedcode.ThingsMac/Things Database.thingsdatabase/main.sqlite`
+If you want to point the server at a specific exported or mounted database file, add an env var:
 
-## Building Locally
+```json
+{
+  "mcpServers": {
+    "Things": {
+      "command": "uv",
+      "args": [
+        "run",
+        "--directory", "/path/to/things-mcp",
+        "--managed-python",
+        "python",
+        "src/main.py"
+      ],
+      "env": {
+        "THINGS_DB_PATH": "/absolute/path/to/main.sqlite"
+      }
+    }
+  }
+}
+```
+
+To locate the default Things database on macOS:
 
 ```bash
-# Build the Docker image
+./get_things_db_path.sh
+```
+
+## Docker
+
+```bash
+# Build the Docker image with uv-managed dependencies
 docker build -t fastmcp-server .
 ```
+
+The Docker image also uses `uv`; it does not install dependencies into the system interpreter.
 
 ## Available Tools
 

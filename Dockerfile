@@ -1,21 +1,15 @@
-FROM python:3.11-slim
+FROM ghcr.io/astral-sh/uv:python3.11-bookworm-slim
 
 WORKDIR /app
 
-# Install uv
-RUN pip install uv
+ENV UV_COMPILE_BYTECODE=1
+ENV UV_LINK_MODE=copy
 
-# Copy requirements first for better caching
-COPY requirements.txt .
+COPY pyproject.toml uv.lock .python-version ./
+RUN uv python install 3.11 --managed-python
+RUN uv sync --managed-python --locked --no-dev
 
-# Use uv to install dependencies with --system flag
-RUN uv pip install --system -r requirements.txt
-
-# Copy the rest of the code
 COPY src/ src/
+COPY get_things_db_path.sh backup_things_db.sh ./
 
-# Expose the port
-EXPOSE 8000
-
-# Run the server
-CMD ["python", "src/main.py"]
+CMD ["uv", "run", "--managed-python", "--locked", "python", "src/main.py"]

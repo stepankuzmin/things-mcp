@@ -1,8 +1,9 @@
-from fastmcp import FastMCP
-from enum import Enum
-from typing import Dict, Any
-import things
 import os
+from enum import Enum
+
+import things
+from anyio import BrokenResourceError
+from fastmcp import FastMCP
 
 # Check if a custom Things database path is set
 things_db_path = os.environ.get("THINGS_DB_PATH")
@@ -10,7 +11,7 @@ if things_db_path:
     things.database = things.Database(things_db_path)
 
 # Initialize FastMCP
-app = FastMCP(title="Things MCP")
+app = FastMCP("Things MCP")
 
 # Define Things Tools
 class ThingsEntityType(str, Enum):
@@ -49,5 +50,24 @@ def things_get(uuid: str) -> dict:
     
     return {"item": item}
 
+def _is_broken_resource_group(exc: BaseExceptionGroup) -> bool:
+    for subexc in exc.exceptions:
+        if isinstance(subexc, BaseExceptionGroup):
+            if not _is_broken_resource_group(subexc):
+                return False
+            continue
+        if not isinstance(subexc, BrokenResourceError):
+            return False
+    return True
+
+def main() -> None:
+    try:
+        app.run(transport="stdio")
+    except KeyboardInterrupt:
+        pass
+    except BaseExceptionGroup as exc:
+        if not _is_broken_resource_group(exc):
+            raise
+
 if __name__ == "__main__":
-    app.run()
+    main()
