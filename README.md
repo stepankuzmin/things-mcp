@@ -31,6 +31,15 @@ uv run --managed-python python src/main.py
 uv run --managed-python pytest
 ```
 
+## Codex Cloud
+
+Codex Cloud does not auto-detect `uv` projects. Configure the environment manually:
+
+- Setup script: `scripts/codex-cloud-setup.sh`
+- Maintenance script: `scripts/codex-cloud-maintenance.sh`
+
+This repo also includes `AGENTS.md`, which tells Codex to use `uv run --managed-python pytest` for validation.
+
 ## Usage with Claude Desktop
 
 Add this to your `~/Library/Application Support/Claude/claude_desktop_config.json`:
