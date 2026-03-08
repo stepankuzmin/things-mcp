@@ -11,7 +11,7 @@ A minimal FastMCP server that integrates with Things task manager on macOS. This
 
 ```bash
 # Install the pinned Python version with uv
-uv python install 3.11
+uv python install 3.14
 
 # Create the project environment in .venv using uv-managed Python
 uv sync --managed-python --locked

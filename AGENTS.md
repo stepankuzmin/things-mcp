@@ -16,4 +16,4 @@
 ## Notes
 
 - Tests are unit tests and do not require a live Things database.
-- The runtime target is Python 3.11.
+- The runtime target is Python 3.14.

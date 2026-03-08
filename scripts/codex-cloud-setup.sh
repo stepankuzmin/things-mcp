@@ -11,5 +11,5 @@ if ! grep -Fq 'export PATH="$HOME/.local/bin:$PATH"' "$HOME/.bashrc" 2>/dev/null
   printf '\nexport PATH="$HOME/.local/bin:$PATH"\n' >> "$HOME/.bashrc"
 fi
 
-uv python install 3.11 --managed-python
+uv python install 3.14 --managed-python
 uv sync --managed-python --locked
