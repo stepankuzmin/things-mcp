@@ -25,6 +25,12 @@ This repo does not use system site-packages. Run everything through `uv`.
 uv run --managed-python python src/main.py
 ```
 
+## Testing
+
+```bash
+uv run --managed-python pytest
+```
+
 ## Usage with Claude Desktop
 
 Add this to your `~/Library/Application Support/Claude/claude_desktop_config.json`:
