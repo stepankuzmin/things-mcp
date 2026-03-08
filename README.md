@@ -96,6 +96,11 @@ To locate the default Things database on macOS:
 docker build -t fastmcp-server .
 ```
 
+Images are also built and published automatically to GitHub Container Registry on every push to `main` and when you push a Git tag:
+
+- `ghcr.io/<owner>/things-mcp:latest`
+- `ghcr.io/<owner>/things-mcp:<git-tag>` (published when you push a Git tag)
+
 The Docker image also uses `uv`; it does not install dependencies into the system interpreter.
 
 ## Available Tools
