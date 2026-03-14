@@ -22,7 +22,12 @@ def load_main_module(module_name: str) -> object:
 @pytest.fixture
 def app_module(monkeypatch):
     monkeypatch.delenv("THINGS_DB_PATH", raising=False)
-    return load_main_module("things_mcp_main_under_test")
+    database_instance = object()
+    monkeypatch.setattr(things, "Database", Mock(return_value=database_instance))
+
+    module = load_main_module("things_mcp_main_under_test")
+    module._test_database_instance = database_instance
+    return module
 
 
 def test_app_registers_current_tools(app_module):
@@ -39,12 +44,11 @@ def test_import_uses_custom_things_database_path(monkeypatch):
 
     monkeypatch.setenv("THINGS_DB_PATH", "/tmp/things.sqlite")
     monkeypatch.setattr(things, "Database", database_ctor)
-    monkeypatch.setattr(things, "database", None, raising=False)
 
-    load_main_module("things_mcp_main_with_custom_db")
+    module = load_main_module("things_mcp_main_with_custom_db")
 
-    database_ctor.assert_called_once_with("/tmp/things.sqlite")
-    assert things.database is database_instance
+    database_ctor.assert_called_once_with(filepath="/tmp/things.sqlite")
+    assert module.THINGS_DATABASE is database_instance
 
 
 def test_things_list_todos_passes_supported_filters(app_module, monkeypatch):
@@ -60,7 +64,11 @@ def test_things_list_todos_passes_supported_filters(app_module, monkeypatch):
     )
 
     assert result == {"items": todos, "count": 2}
-    todos_mock.assert_called_once_with(include_completed=True, include_canceled=True)
+    todos_mock.assert_called_once_with(
+        include_completed=True,
+        include_canceled=True,
+        database=app_module._test_database_instance,
+    )
 
 
 @pytest.mark.parametrize(
@@ -79,7 +87,7 @@ def test_things_list_reads_non_todo_entities(app_module, monkeypatch, entity_typ
     result = app_module.things_list(getattr(app_module.ThingsEntityType, entity_type))
 
     assert result == {"items": items, "count": 1}
-    api_mock.assert_called_once_with()
+    api_mock.assert_called_once_with(database=app_module._test_database_instance)
 
 
 def test_things_get_returns_item(app_module, monkeypatch):
@@ -91,7 +99,7 @@ def test_things_get_returns_item(app_module, monkeypatch):
     result = app_module.things_get("todo-1")
 
     assert result == {"item": item}
-    get_mock.assert_called_once_with("todo-1")
+    get_mock.assert_called_once_with("todo-1", database=app_module._test_database_instance)
 
 
 def test_things_get_raises_for_missing_item(app_module, monkeypatch):
